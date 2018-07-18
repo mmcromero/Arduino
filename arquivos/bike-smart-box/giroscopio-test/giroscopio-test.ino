@@ -10,8 +10,16 @@ void setup()
 {
 
   Serial.begin(9600);
+
+  //40 sleep
+  //42 self test
+  //38 Og detect
+  //44 g-select
+  //A0 X
+  //A2 Y
+  //A4 Z
   //accelero.begin(13, 12, 11, 10, A0, A1, A2);
-  accelero.begin(9, 8, 7, 6, A0, A1, A2);
+  accelero.begin(40, 42, 38, 44, A0, A2, A4);
   accelero.setARefVoltage(3.3);  //sets the AREF voltage to 3.3V
   accelero.setSensitivity(HIGH);  //sets the sensitivity to +/-6G
   accelero.calibrate();

@@ -1,10 +1,12 @@
 
 #include <Bounce2.h>
-#define BUTTON_PIN_1 3
-#define BUTTON_PIN_2 4
+#define BUTTON_PIN_1 34
+#define BUTTON_PIN_2 32
+#define BUTTON_PIN_3 36
+
 Bounce debouncer1 = Bounce(); // Instantiate a Bounce object
 Bounce debouncer2 = Bounce(); // Instantiate another Bounce object
-
+Bounce debouncer3 = Bounce(); // Instantiate another Bounce object
 
 
 #include <MD_Parola.h>
@@ -20,9 +22,9 @@ Bounce debouncer2 = Bounce(); // Instantiate another Bounce object
 #define ZONE_UPPER  1
 #define ZONE_LOWER  0
 
-#define CLK_PIN   13
-#define DATA_PIN  11
-#define CS_PIN    10
+#define CLK_PIN   52 // 52 13 laranja
+#define DATA_PIN  51 // 51 11 verde
+#define CS_PIN    53 // 53 10 amarelo
 
 // HARDWARE SPI
 MD_Parola P = MD_Parola(CS_PIN, MAX_DEVICES);
@@ -45,8 +47,7 @@ char *msg[] =
 
 
 
-#define LED_PIN 5
-
+#define LED_PIN 33
 #define DEBUG 1
 
 
@@ -77,6 +78,9 @@ void setup() {
   pinMode(BUTTON_PIN_2,INPUT_PULLUP);// Setup the second button with an internal pull-up :
   debouncer2.attach(BUTTON_PIN_2);// After setting up the button, setup the Bounce instance :
   debouncer2.interval(5); // interval in ms
+  pinMode(BUTTON_PIN_3,INPUT_PULLUP);// Setup the second button with an internal pull-up :
+  debouncer3.attach(BUTTON_PIN_3);// After setting up the button, setup the Bounce instance :
+  debouncer3.interval(5); // interval in ms
 
 
 
@@ -110,8 +114,10 @@ void loop() {
   
   debouncer1.update();// Update the Bounce instances :
   debouncer2.update();
+  debouncer3.update();
   int btEsq = debouncer1.read(); // Get the updated value :
   int btDir = debouncer2.read();
+  int btComando = debouncer3.read();
 
   
 
@@ -126,8 +132,11 @@ void loop() {
 
 
 
-
-
+  if ( btComando == LOW) {
+    Serial.println("bt comando");
+  }else{
+    
+  }
 
 
 
