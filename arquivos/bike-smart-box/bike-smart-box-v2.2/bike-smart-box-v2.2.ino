@@ -34,8 +34,8 @@ char *msg[] =
 };
 
 #define DEBUG 1
-
-
+String cmd = "";
+String cmdVar = "";
 
 #include <TimerOne.h>
 
@@ -124,26 +124,52 @@ void setup() {
 
  
 void loop() {
+  
+#if DEBUG
+  /////// RECEBE SERIAL //-----------------------------------------------------------------------------------------------------------
+  if(Serial.available() > 0) {
+    while(Serial.available() > 0){
+      cmd += char(Serial.read());
+      delay(10);
+    }
+    Serial.println(cmd); 
+  }
+  if (cmd.length() >0) { 
+    // switch debug
+    if(cmd == "esq"){cmdVar = "esq";}
+    if(cmd == "dir"){cmdVar = "dir";}
+    if(cmd == " "){cmdVar = " ";}
 
-  if ( digitalRead(bt_esq) == LOW) {
+    cmd = "";
+  }
+  //-----------------------------------------------------------------------------------------------------------------------------
+#endif
+
+  if ( digitalRead(bt_esq) == LOW || cmdVar == "esq") {
       digitalWrite(led_esq, HIGH );
       Timer1.setPeriod(400000);
 
       if(retorno == 0){
         retorno = 1;
-        Serial.println("bt-esq");
+        #if DEBUG
+          Serial.println("bt-esq");
+        #endif
+        
         limpaMatrixLed();
       }
       
       escreveMatrixLed(msg[0],"esquerda");
       
-  }else if (digitalRead(bt_dir) == LOW ) {
+  }else if (digitalRead(bt_dir) == LOW || cmdVar == "dir" ) {
       digitalWrite(led_dir, HIGH );
       Timer1.setPeriod(400000);
 
       if(retorno == 0){
         retorno = 1;
-        Serial.println("bt-dir");
+        #if DEBUG
+          Serial.println("bt-dir");
+        #endif
+        
         limpaMatrixLed();
       }
       
@@ -154,12 +180,16 @@ void loop() {
       
       int command = getCommand(); 
       if(command != 0){
-        Serial.print("Ultimo comando: ");
-        Serial.println(command);
+        #if DEBUG
+          Serial.print("Ultimo comando: ");
+          Serial.println(command);
+        #endif
       }
 
       if(retorno == 1){
-        Serial.println("retorno");
+        #if DEBUG
+          Serial.println("retorno");
+        #endif
         retorno = 0;
         command = 1; 
         limpaMatrixLed();
@@ -170,38 +200,44 @@ void loop() {
   
 
         if (command == 1){
-          Serial.println("1 carro a menos, respeite!");
+          #if DEBUG
+            Serial.println("1 carro a menos, respeite!");
+          #endif
           Timer1.stop();
           digitalWrite( led_indicativo, LOW );
           
         }
         if (command == 2){
-          Serial.println("Sua buzina não me helecopiteriza... KKK");
-          Serial.println("Comando - 2");
+          #if DEBUG
+            Serial.println("Sua buzina não me helecopiteriza... KKK");
+            Serial.println("Comando - 2");
+          #endif
           Timer1.setPeriod(100000);
         }
          
         if (command == 3){
-          Serial.println("PASSA POR CIMA =P");
-          Serial.println("Comando - 3");
+          #if DEBUG
+            Serial.println("PASSA POR CIMA =P");
+            Serial.println("Comando - 3");
+          #endif
           Timer1.setPeriod(200000);
         }
          
         if (command == 4){
-          Serial.println("*********");
-          Serial.println("Comando - 4");
+          #if DEBUG
+            Serial.println("*********");
+            Serial.println("Comando - 4");
+          #endif
           Timer1.setPeriod(300000);
         }
          
         if (command == 5){
           //digitalWrite(led_indicativo, LOW);
-          Serial.println("Comando - 5");
+          #if DEBUG
+            Serial.println("Comando - 5");
+          #endif
           Timer1.setPeriod(400000);
-        }
-
-        
-      
-        
+        } 
   }
 }
 
