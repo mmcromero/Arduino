@@ -1,3 +1,42 @@
+#include <MD_Parola.h>
+#include <MD_MAX72xx.h>
+#include <SPI.h>
+#include "Font_Data.h"
+
+#define MAX_ZONES 2
+#define ZONE_SIZE 4
+#define MAX_DEVICES (MAX_ZONES * ZONE_SIZE)
+#define SCROLL_SPEED  30
+
+#define ZONE_UPPER  1
+#define ZONE_LOWER  0
+
+#define CLK_PIN   52 // 52 13 laranja
+#define DATA_PIN  51 // 51 11 verde
+#define CS_PIN    53 // 53 10 amarelo
+
+// HARDWARE SPI
+MD_Parola P = MD_Parola(CS_PIN, MAX_DEVICES);
+// SOFTWARE SPI
+//MD_Parola P = MD_Parola(DATA_PIN, CLK_PIN, CS_PIN, MAX_DEVICES);
+
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
+char *msg[] =
+{
+  "<<<<<<<<",
+  ">>>>>>>>",
+  "45 k",
+  "-",
+  "1,5m ",
+  "mantenha distancia",
+  "Respeite 1 carro a MENOS",
+
+};
+
+#define DEBUG 1
+
+
+
 #include <TimerOne.h>
 
 byte bt_esq = 32;
@@ -57,43 +96,63 @@ int getCommand(){
  
  
 void setup() {
+
+#if DEBUG
   Serial.begin(9600);
+  Serial.println("Debug BIKE-SMART-BOX v2.2");
+#endif
+
   pinMode(bt_input, INPUT_PULLUP); //internal pullup resistor is used to simplify the circuit
   pinMode(bt_esq, INPUT_PULLUP);
   pinMode(bt_dir, INPUT_PULLUP);
-  //pinMode(bluePin, OUTPUT);
-  ///pinMode(greenPin, OUTPUT);
   pinMode(led_indicativo, OUTPUT);
   Timer1.initialize(5000000); // set a timer of length 100000 microseconds (or 0.1 sec - or 10Hz => the led will blink 5 times, 5 cycles of on-and-off, per second)
   Timer1.attachInterrupt( piscaLed ); // attach the service routine here
-  //pinMode(ledPin,OUTPUT);
-  
+
+  P.begin(MAX_ZONES);// initialise the LED display
+  // Set up zones for 2 halves of the display
+  // Each zone gets a different font, making up the top
+  // and bottom half of each letter
+  P.setZone(ZONE_LOWER, 0, ZONE_SIZE - 1);
+  P.setFont(ZONE_LOWER, BigFontLower);
+
+  P.setZone(ZONE_UPPER, ZONE_SIZE, MAX_DEVICES-1);
+  P.setFont(ZONE_UPPER, BigFontUpper);
+  P.setCharSpacing(P.getCharSpacing() * 2); // double height --> double spacing
 }
+
+
  
 void loop() {
-   
-  
 
-
-
-
-
-
- 
   if ( digitalRead(bt_esq) == LOW) {
       digitalWrite(led_esq, HIGH );
       Timer1.setPeriod(400000);
-      retorno = 1;
-      Serial.println("bt-esq");
+
+      if(retorno == 0){
+        retorno = 1;
+        Serial.println("bt-esq");
+        limpaMatrixLed();
+      }
+      
+      escreveMatrixLed(msg[0],"esquerda");
+      
   }else if (digitalRead(bt_dir) == LOW ) {
       digitalWrite(led_dir, HIGH );
       Timer1.setPeriod(400000);
-      retorno = 1; 
-      Serial.println("bt-dir");
-  }else {
 
-      int command = getCommand();
-        
+      if(retorno == 0){
+        retorno = 1;
+        Serial.println("bt-dir");
+        limpaMatrixLed();
+      }
+      
+      escreveMatrixLed(msg[1],"direita");
+      
+  }else {
+      
+      
+      int command = getCommand(); 
       if(command != 0){
         Serial.print("Ultimo comando: ");
         Serial.println(command);
@@ -103,15 +162,18 @@ void loop() {
         Serial.println("retorno");
         retorno = 0;
         command = 1; 
+        limpaMatrixLed();
+      }else{
+        escreveMatrixLed(msg[6],"esquerda");
       }
       
   
 
         if (command == 1){
-          //digitalWrite(greenPin, !digitalRead(greenPin));
           Serial.println("1 carro a menos, respeite!");
           Timer1.stop();
           digitalWrite( led_indicativo, LOW );
+          
         }
         if (command == 2){
           Serial.println("Sua buzina não me helecopiteriza... KKK");
@@ -143,6 +205,30 @@ void loop() {
   }
 }
 
+void limpaMatrixLed(){
+  P.displayClear();
+  P.displayZoneText(ZONE_LOWER, "", PA_RIGHT, SCROLL_SPEED, 0, PA_SCROLL_RIGHT, PA_SCROLL_RIGHT);
+  P.displayZoneText(ZONE_UPPER, "", PA_LEFT, SCROLL_SPEED, 0, PA_SCROLL_RIGHT, PA_SCROLL_RIGHT);
+}
+
+void escreveMatrixLed(char *msg, String direcao){
+  P.displayAnimate();
+  if (P.getZoneStatus(ZONE_LOWER) && P.getZoneStatus(ZONE_UPPER)){
+      P.setFont(ZONE_LOWER, BigFontLower);
+      P.setFont(ZONE_UPPER, BigFontUpper);
+
+      if(direcao == "esquerda"){
+      P.displayZoneText(ZONE_LOWER, msg, PA_RIGHT, SCROLL_SPEED, 0, PA_SCROLL_LEFT, PA_SCROLL_LEFT);
+      P.displayZoneText(ZONE_UPPER, msg, PA_LEFT, SCROLL_SPEED, 0, PA_SCROLL_LEFT, PA_SCROLL_LEFT);
+      }else if(direcao == "direita"){
+      P.displayZoneText(ZONE_LOWER, msg, PA_RIGHT, SCROLL_SPEED, 0, PA_SCROLL_RIGHT, PA_SCROLL_RIGHT);
+      P.displayZoneText(ZONE_UPPER, msg, PA_LEFT, SCROLL_SPEED, 0, PA_SCROLL_RIGHT, PA_SCROLL_RIGHT);
+      }
+      // synchronise the start
+      P.displayClear();
+      P.synchZoneStart();
+  }
+}
 void piscaLed()
 {
     // Toggle LED

@@ -1,7 +1,7 @@
 
 #include <Bounce2.h>
-#define BUTTON_PIN_1 34
-#define BUTTON_PIN_2 32
+#define BUTTON_PIN_1 32
+#define BUTTON_PIN_2 34
 #define BUTTON_PIN_3 36
 
 Bounce debouncer1 = Bounce(); // Instantiate a Bounce object
@@ -148,7 +148,7 @@ void loop() {
   if ( btEsq == LOW) {
     digitalWrite(LED_PIN, HIGH );
     Serial.println("bt-esq");
-    
+
     P.displayAnimate();
     if (P.getZoneStatus(ZONE_LOWER) && P.getZoneStatus(ZONE_UPPER)){
         P.setFont(ZONE_LOWER, BigFontLower);
@@ -163,10 +163,10 @@ void loop() {
   }else if (btDir == LOW ) {
     digitalWrite(LED_PIN, HIGH );
     Serial.println("bt-dir");
-    
+
     P.displayAnimate();
     if (P.getZoneStatus(ZONE_LOWER) && P.getZoneStatus(ZONE_UPPER)){
-      
+        
         P.setFont(ZONE_LOWER, BigFontLower);
         P.setFont(ZONE_UPPER, BigFontUpper);
         P.displayZoneText(ZONE_LOWER, msg[1], PA_RIGHT, SCROLL_SPEED, 0, PA_SCROLL_RIGHT, PA_SCROLL_RIGHT);
