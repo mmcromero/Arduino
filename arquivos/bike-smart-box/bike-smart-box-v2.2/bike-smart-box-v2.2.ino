@@ -11,9 +11,9 @@
 #define ZONE_UPPER  1
 #define ZONE_LOWER  0
 
-#define CLK_PIN   52 // 52 13 laranja
-#define DATA_PIN  51 // 51 11 verde
-#define CS_PIN    53 // 53 10 amarelo
+#define CLK_PIN   13 // 52 13 branco azul
+#define DATA_PIN  11 // 51 11 laranja
+#define CS_PIN    10 // 53 10 branco laranja
 
 // HARDWARE SPI
 MD_Parola P = MD_Parola(CS_PIN, MAX_DEVICES);
@@ -39,16 +39,16 @@ String cmdVar = "";
 
 #include <TimerOne.h>
 
-byte bt_esq = 32;
-byte bt_dir = 34;
-byte bt_input = 36;
+byte bt_esq = 9; //32 roxo
+byte bt_dir = 8; //34 cinza
+byte bt_input = 7; //36 vermelho
 
-byte led_indicativo = 33;
-byte led_esq = 35;
-byte led_dir = 37;
+byte led_indicativo = 12;
+byte led_esq = 6;
+byte led_dir = 5;
 
 //int last_command;
-  int retorno = 0;
+int retorno = 0;
 byte digitalReadOnce(byte val){
   static byte lastVal = HIGH;
   static unsigned long m = 0;
@@ -99,7 +99,7 @@ void setup() {
 
 #if DEBUG
   Serial.begin(9600);
-  Serial.println("Debug BIKE-SMART-BOX v2.2");
+  Serial.println("Debug BIKE-SMART-BOX v2.222");
 #endif
 
   pinMode(bt_input, INPUT_PULLUP); //internal pullup resistor is used to simplify the circuit

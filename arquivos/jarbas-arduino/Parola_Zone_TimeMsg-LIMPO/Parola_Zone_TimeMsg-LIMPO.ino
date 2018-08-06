@@ -97,19 +97,13 @@ void loop(void)
   static uint32_t lastTime = 0; // millis() memory
   static uint8_t  display = 0;  // current display mode
   static bool flasher = false;  // seconds passing flasher
-
   P.setIntensity(brilhoLed);
   P.displayAnimate();
-
-  
-
   // Finally, adjust the time string if we have to
-  if (millis() - lastTime >= 1000)
-  {
+  if (millis() - lastTime >= 1000){
     lastTime = millis();
     getTime(szTime, flasher);
     flasher = !flasher;
-
     P.displayReset(1);
   }
 }
