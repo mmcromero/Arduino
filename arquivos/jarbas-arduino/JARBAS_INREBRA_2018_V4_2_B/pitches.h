@@ -1,4 +1,4 @@
-int speakerPin = 8;
+int speakerPin = 8 ;
 
 int length = 15; // número de notas
 char notes[] = "ccggaagffeeddc "; // espaços representam pausas
@@ -15,8 +15,8 @@ void playTone(int tone, int duration) {
 }
 
 void playNote(char note, int duration) {
-  //char names[] = { 'c', 'd', 'e', 'f', 'g', 'a', 'b', 'C' };
-  char names[] = { 'c', 'f', 'a', 'g', 'c', 'f', 'c', 'f' };
+  char names[] = { 'c', 'd', 'e', 'f', 'g', 'a', 'b', 'C' };
+  //char names[] = { 'c', 'f', 'a', 'g', 'c', 'f', 'c', 'f' };
   int tones[] = { 1915, 1700, 1519, 1432, 1275, 1136, 1014, 956 };
 
   // toque o tom correspondente ao nome da nota

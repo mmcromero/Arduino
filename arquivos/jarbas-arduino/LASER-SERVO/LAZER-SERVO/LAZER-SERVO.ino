@@ -14,7 +14,7 @@ int val_x;   //Armazena o valor do eixo X
 int val_y;   //Armazena o valor do eixo Y
 
 //Constants
-const int buttonPin = 4;     
+const int buttonPin = 37;     
 const int ledPin =  3;     
 
 //Variables
@@ -24,9 +24,9 @@ int flag=0;
 void setup()
 {
   //Define a porta a ser ligada ao servo base
-  servo_base.attach(7, 1, 180);
+  servo_base.attach(39, 1, 180);
   //Define a porta a ser ligada ao servo inclinacao
-  servo_inclinacao.attach(8, 1, 180);
+  servo_inclinacao.attach(41, 1, 180);
 
   //Input or output?
   pinMode(ledPin, OUTPUT);      

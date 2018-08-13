@@ -1,4 +1,4 @@
-int speakerPin = 8;
+int speakerPin = 6;
 
 int length = 15; // número de notas
 char notes[] = "ccggaagffeeddc "; // espaços representam pausas
