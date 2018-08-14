@@ -73,6 +73,18 @@ bool debugControle = true;
 
 //generico
 
+
+
+void setPin(int pin, int flag){
+  digitalWrite(pin, flag);  
+  if(debugControle == true){
+    Serial.print("pin: ");
+    Serial.print(pin);
+    Serial.print(" flag: ");
+    Serial.println(flag);
+  }
+}
+
 void armadilhaBaixo(){
   Serial.println("armadilha mosquito baixo");
   if (!FLAGTomadaSala) {  
@@ -105,6 +117,14 @@ void portaoPedestre(){
 
 
 void controlaRele(String strValue){ 
+  if(strValue == "armadilhaBaixoHigh"){
+    FLAGTomadaSala = HIGH;
+    setPin(PIN_TOMADA_SALA, FLAGTomadaSala);
+  }
+  if(strValue == "armadilhaBaixoLow"){
+    FLAGTomadaSala = LOW;
+    setPin(PIN_TOMADA_SALA, FLAGTomadaSala);
+  }
   if(strValue == "armadilhaBaixo"){armadilhaBaixo();}
   if(strValue == "armadilhaCima"){armadilhaCima();}
   if(strValue == "resetModem"){resetModem();}
@@ -153,8 +173,8 @@ E -externas
   if(strLocal != "S"){digitalWrite(NEGATIVOIRSALA, LOW); }
   if(strLocal != "E"){digitalWrite(NEGATIVOIRESCADA, LOW); }
   if(strLocal != "K"){digitalWrite(NEGATIVOIRCRIANCAS, LOW); }
-  //if(strLocal != "M"){digitalWrite(NEGATIVOIRMEIO, LOW); }
-  if(strLocal != "E"){digitalWrite(NEGATIVOIRMEIO, LOW); }
+  if(strLocal != "M"){digitalWrite(NEGATIVOIRMEIO, LOW); }
+  //if(strLocal != "E"){digitalWrite(NEGATIVOIRMEIO, LOW); }
   if(strLocal != "C"){digitalWrite(NEGATIVOIRCASAL, LOW); } 
   
   irrecv.enableIRIn(); // Re-enable receiver
@@ -196,7 +216,7 @@ void setup(){
   servo_inclinacao.attach(41, 1, 180);
   pinMode(BUTTON_PIN_1,INPUT_PULLUP); // Setup the first button with an internal pull-up :
   debouncer1.attach(BUTTON_PIN_1);// After setting up the button, setup the Bounce instance :
-  debouncer1.interval(5); // interval in ms
+  debouncer1.interval(10); // interval in ms
   pinMode(lazerPin, OUTPUT);      
    
   
@@ -208,42 +228,29 @@ void loop(){
 
 
   ///// ----------- SERVO + JOYSTICK
-
   debouncer1.update();
   int btLazer = debouncer1.read();
-
   if ( btLazer == LOW) {
     Serial.println("bt comando LOW");
     if ( flag == 0){
       digitalWrite(lazerPin, HIGH);
       flag=1;
-
       delay(5);
-
     }else if ( flag == 1){
       digitalWrite(lazerPin, LOW);
       flag=0; 
       delay(5); 
     }   
-  }else{
-
-    //Serial.println("bt comando HIGH");
   }
 
   if(flag == 1){
     //Recebe o valor do joystick, eixo X
-      val_x = analogRead(pino_x);
-      //Converte o valor lido para um valor entre 1 e 180 graus
-      val_x = map(val_x, 0, 1023, 1, 180);
-      //Move o servo base para a posicao definida pelo joystick
-      servo_base.slowmove(val_x, 60);
-      //Recebe o valor do joystick, eixo Y
-      val_y = analogRead(pino_y);
-      //Converte o valor lido para um valor entre 1 e 180 graus
-      val_y = map(val_y, 0, 1023, 1, 180);
-      //Move o servo inclinacao para a posicao definida pelo joystick
-      servo_inclinacao.slowmove(val_y, 60);
-      //Aguarda a movimentacao do servo e reinicia a leitura
+      val_x = analogRead(pino_x);//Converte o valor lido para um valor entre 1 e 180 graus
+      val_x = map(val_x, 0, 1023, 1, 180); //Move o servo base para a posicao definida pelo joystick
+      servo_base.slowmove(val_x, 60);//Recebe o valor do joystick, eixo Y
+      val_y = analogRead(pino_y);//Converte o valor lido para um valor entre 1 e 180 graus
+      val_y = map(val_y, 0, 1023, 1, 180);//Move o servo inclinacao para a posicao definida pelo joystick
+      servo_inclinacao.slowmove(val_y, 60);//Aguarda a movimentacao do servo e reinicia a leitura
   }
   
   /////// RECEBE SERIAL //-----------------------------------------------------------------------------------------------------------
