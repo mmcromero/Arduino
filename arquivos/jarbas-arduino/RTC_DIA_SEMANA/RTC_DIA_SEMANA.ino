@@ -85,11 +85,11 @@ void configuraModulo()
      o valor de 9horas, digite apenas o dígito 9, nunca 09.
   */
   segundo = 0;
-  minuto = 24;
+  minuto = 46;
   hora = 23;
   diaDaSemana = 4; // 1-segunda 2-terça 3-quarta 4-quinta 5-sexta 6-sabado
-  diaDoMes = 5;
-  mes = 7;
+  diaDoMes = 16;
+  mes = 8;
   ano = 18;
 
   Wire.beginTransmission(enderecoI2C); //Abrindo o modo I2C no modo de gravação.

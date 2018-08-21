@@ -15,9 +15,9 @@ bool debugControle = true;
 #include <SPI.h>
 #include "Font_Data.h"
 #define MAX_DEVICES 4
-#define CLK_PIN   43 // 52 13 laranja
-#define DATA_PIN  42 // 51 11 verde
-#define CS_PIN    41 // 53 10 amarelo
+#define CLK_PIN   52 // 52 13 branco laranja
+#define DATA_PIN  51 // 51 11 verde
+#define CS_PIN    53 // 53 10 branco verde
 //--RTC
 #include <MD_DS1307.h>
 #include <Wire.h>

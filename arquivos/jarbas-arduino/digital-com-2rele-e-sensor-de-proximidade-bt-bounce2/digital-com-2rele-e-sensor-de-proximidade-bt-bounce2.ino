@@ -138,6 +138,11 @@ void verificaUsuario(int id){
     liberado = 1;
   }
 
+  if(id >= 7 && id <= 8){
+    Serial.print("Bem vinda Gisele - ");
+    Serial.println(porcentagemId);
+    liberado = 1;
+  }
 
 
   if(liberado == 1){
