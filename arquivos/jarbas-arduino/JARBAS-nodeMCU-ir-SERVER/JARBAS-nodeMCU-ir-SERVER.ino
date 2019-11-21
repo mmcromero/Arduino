@@ -127,14 +127,14 @@ void setup() {
     //Local intialization. Once its business is done, there is no need to keep it around
     WiFiManager wifiManager;
     //reset saved settings
-    //wifiManager.resetSettings();
+    wifiManager.resetSettings();
     
     //set custom ip for portal
     wifiManager.setAPStaticIPConfig(IPAddress(192,168,0,75), IPAddress(192,168,0,1), IPAddress(255,255,255,0));
 
     
     //start-block2
-    IPAddress _ip = IPAddress(192, 168, 0, 8);
+    IPAddress _ip = IPAddress(192, 168, 0, 80);
     IPAddress _gw = IPAddress(192, 168, 0, 1);
     IPAddress _sn = IPAddress(255, 255, 255, 0);
     //end-block2

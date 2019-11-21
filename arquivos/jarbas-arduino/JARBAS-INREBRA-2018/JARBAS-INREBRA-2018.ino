@@ -254,7 +254,7 @@ void loop(){
   {  
     Serial.print("Valor lido 1 : ");  
     Serial.println(results.value, HEX);  
-    //armazenavalor = (results.value);   
+    armazenavalor = (results.value);   
     
     if(results.value !=0xffffffff){
       armazenavalor = (results.value);

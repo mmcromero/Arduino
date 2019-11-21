@@ -67,27 +67,6 @@ float armazenavalor;
 
 /* ------------------------------------------------------------------ IR ------------------------------------------------------------------ */
 
-
-/* ------------------------------------------------------------------ Servo + Joystick + LASER------------------------------------------------------------------ */
-#include <VarSpeedServo.h>
-VarSpeedServo servo_base;
-VarSpeedServo servo_inclinacao;
-int servo1 = 39;
-int servo2 = 41;
-
-int pino_x = A4; //Pino ligado ao X do joystick
-int pino_y = A5; //Pino ligado ao Y do joystick
-int val_x;   //Armazena o valor do eixo X
-int val_y;   //Armazena o valor do eixo Y
-
-#include <Bounce2.h>
-#define BUTTON_PIN_1 37
-Bounce debouncer1 = Bounce(); // Instantiate a Bounce object
-    
-const int lazerPin =  3;
-int flag=0;
-/* ------------------------------------------------------------------ Servo + Joystick + LAsSR------------------------------------------------------------------ */
-
 // pinos de reles
 
 int PIN_PORTAO_PEDESTRE = 31;
@@ -121,9 +100,12 @@ int intTamanho;
 bool debugControle = true;
 //----------------------------
 
+#include <Wire.h>
+#include "Rtc.h" //RTC
 
 
-//generico
+ 
+
 
 
 
@@ -139,6 +121,8 @@ void setPin(int pin, int flag){
 
 void armadilhaBaixo(){
   Serial.println("armadilha mosquito baixo");
+  FLAGTomadaSala = ! FLAGTomadaSala;
+    setPin(PIN_TOMADA_SALA, FLAGTomadaSala);
 }
 
 void armadilhaCima(){
@@ -161,6 +145,7 @@ void controlaRele(String strValue){
     FLAGTomadaSala = LOW;
     setPin(PIN_TOMADA_SALA, FLAGTomadaSala);
   }
+  
   if(strValue == "armadilhaBaixo"){armadilhaBaixo();}
   if(strValue == "armadilhaCima"){armadilhaCima();}
   if(strValue == "resetModem"){resetModem();}
@@ -215,23 +200,7 @@ E -externas
   irrecv.enableIRIn(); // Re-enable receiver
 }
 
-void controleBrilho(char tipo){
-  if(tipo == '+'){
-      if(brilhoLed < 15){
-        brilhoLed = brilhoLed + 1;  
-      }
-      Serial.println(brilhoLed);
-   }else if(tipo == '-'){
-      if(brilhoLed >= 1){
-        brilhoLed = brilhoLed - 1;
-      }
-      Serial.println(brilhoLed);
-   }else{
-     Serial.print("Caiu no else: "); 
-     Serial.println(tipo);
-   }
 
-}
 
 //----------------------------
 #include "pitches.h" //musica
@@ -240,7 +209,7 @@ void controleBrilho(char tipo){
 void setup(){ 
   Serial.begin(9600);
   Ethernet.begin(myMac, myIp, gateway, subnet);//inicializa eternet
-  
+  //Wire.begin();             //inicializando a biblioteca.
   pinMode(speakerPin, OUTPUT); // speaker
 
   pinMode(NEGATIVOIRSALA, OUTPUT);
@@ -264,12 +233,7 @@ void setup(){
   irrecv.enableIRIn(); // Inicializa o receptor IR 
   Serial.println(jarbasVersion);
 
-  servo_base.attach(servo1, 1, 180);
-  servo_inclinacao.attach(servo2, 1, 180);
-  pinMode(BUTTON_PIN_1,INPUT_PULLUP); // Setup the first button with an internal pull-up :
-  debouncer1.attach(BUTTON_PIN_1);// After setting up the button, setup the Bounce instance :
-  debouncer1.interval(10); // interval in ms
-  pinMode(lazerPin, OUTPUT);      
+       
 
 
   // ---------------- PAROLA ---------------------
@@ -303,32 +267,6 @@ void loop(){
     Serial.println(timerPortao);
   }
 
-  ///// ----------- SERVO + JOYSTICK
-  debouncer1.update();
-  int btLazer = debouncer1.read();
-  if ( btLazer == LOW) {
-    Serial.println("bt comando LOW");
-    if ( flag == 0){
-      digitalWrite(lazerPin, HIGH);
-      flag=1;
-      delay(5);
-    }else if ( flag == 1){
-      digitalWrite(lazerPin, LOW);
-      flag=0; 
-      delay(5); 
-    }   
-  }
-
-  if(flag == 1){
-    //Recebe o valor do joystick, eixo X
-      val_x = analogRead(pino_x);//Converte o valor lido para um valor entre 1 e 180 graus
-      val_x = map(val_x, 0, 1023, 1, 180); //Move o servo base para a posicao definida pelo joystick
-      servo_base.slowmove(val_x, 60);//Recebe o valor do joystick, eixo Y
-      val_y = analogRead(pino_y);//Converte o valor lido para um valor entre 1 e 180 graus
-      val_y = map(val_y, 0, 1023, 1, 180);//Move o servo inclinacao para a posicao definida pelo joystick
-      servo_inclinacao.slowmove(val_y, 60);//Aguarda a movimentacao do servo e reinicia a leitura
-  }
-
   //parola + rtc -------------------------------------------
     static uint32_t lastTime = 0; // millis() memory
     static uint8_t  display = 0;  // current display mode
@@ -351,7 +289,7 @@ void loop(){
       cmd += char(Serial.read());
       delay(10);
     }
-    Serial.println(cmd); 
+    //Serial.println(cmd); 
   }
   if (cmd.length() >0) { 
     // switch debug
@@ -366,14 +304,31 @@ void loop(){
       digitalWrite(PIN_TOMADA_SALA, LOW);
       Serial.println("aqui 2");
       }
+
+    if (cmd.indexOf("rtc-") != -1)  {
+          configuraModulo(cmd);
+    }
+
+    if (cmd == "b+")  {
+          controleBrilho("+");
+          //Serial.print("brilho atual: ");
+          //Serial.println("aqui 2");
+    }
+
+    if (cmd == "b-")  {
+          controleBrilho("-");
+          //Serial.print("brilho atual: ");
+          //Serial.println("aqui 2");
+    }
+      
     cmd = "";
   }
   //-----------------------------------------------------------------------------------------------------------------------------
 
   /////// RECEBE IR //-----------------------------------------------------------------------------------------------------------
   if (irrecv.decode(&results)){  
-    Serial.print("Valor lido 1 : ");  
-    Serial.println(results.value, HEX);  
+    //Serial.print("Valor lido 1 : ");  
+    //Serial.println(results.value, HEX);  
     //armazenavalor = (results.value);   
     if(results.value !=0xffffffff){
       armazenavalor = (results.value);
@@ -444,13 +399,25 @@ void loop(){
     comando = request.substring(11,intTamanho -9 );
     Serial.println(comando);
     controlaRele(comando);
-
-    
-    //intTamanho = request.length();
-    //strLocal = request.substring(intTamanho -9, intTamanho -10);
-    //comando = request.substring(10,intTamanho -10);
-    //sendIr(strRepeticao,strLocal, comando);
   }
+
+  if (request.indexOf("/rtc-") != -1)  {
+          comando = request.substring(6,23 );
+
+          //POST /rtc-2214001171218 HTTP/1.1
+          //123456789012345678901234
+          configuraModulo(comando);
+  }
+
+  if (request.indexOf("/brilho") != -1)  {
+          comando = request.substring(12,13);
+
+          //POST /brilho+ HTTP/1.1
+          //123456789012345678901234
+          controleBrilho(comando);
+  }
+
+  
     
   // Return the response
   client.println("HTTP/1.1 200 OK");

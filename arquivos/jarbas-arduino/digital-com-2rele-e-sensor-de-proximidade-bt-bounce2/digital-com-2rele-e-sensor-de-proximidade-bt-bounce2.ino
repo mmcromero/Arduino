@@ -1,13 +1,14 @@
 #include <Bounce2.h>
-#define BUTTON_PIN 13
+#define BUTTON_PORTAO_PIN 13
+#define BUTTON_FINGERPRINT_PIN 2
 
 #define LED_PIN 8
 #define PORTAO_PIN 9
-int ledState = LOW;
+int ledState = HIGH;
 int portaoState = HIGH;
 
 
-int pinosensor = A1; 
+
 int leitura; //Armazena o valor lido pelo sensor  
 
 
@@ -15,10 +16,10 @@ int leitura; //Armazena o valor lido pelo sensor
 int porcentagemId;
 
 int timerPortao=0;
-
+int timerFingerprint=0;
 // Instantiate a Bounce object :
 Bounce debouncer = Bounce(); 
-
+Bounce debouncer2 = Bounce(); 
 
 
 #include <Adafruit_Fingerprint.h>
@@ -32,7 +33,7 @@ Bounce debouncer = Bounce();
 // pin #3 is OUT from arduino  (WHITE wire)
 // comment these two lines if using hardware serial
 #include <SoftwareSerial.h>
-SoftwareSerial mySerial(2, 3);
+SoftwareSerial mySerial(4, 5);
 
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 
@@ -58,44 +59,35 @@ void setup()
   Serial.println("Waiting for valid finger...");
 
   // Setup the button with an internal pull-up :
-  pinMode(BUTTON_PIN,INPUT_PULLUP);
+  //pinMode(BUTTON_PORTAO_PIN,INPUT_PULLUP);
+  //pinMode(BUTTON_FINGERPRINT_PIN,INPUT_PULLUP);
   
   // After setting up the button, setup the Bounce instance :
-  debouncer.attach(BUTTON_PIN);
-  debouncer.interval(500);
+  //debouncer.attach(BUTTON_PORTAO_PIN);
+  //debouncer.interval(500);
+
+  //debouncer2.attach(BUTTON_FINGERPRINT_PIN);
+  //debouncer2.interval(100);
   
   // Setup the LED :
-  pinMode(LED_PIN,OUTPUT);
-  digitalWrite(LED_PIN,ledState);
-  pinMode(PORTAO_PIN,OUTPUT);
-  digitalWrite(PORTAO_PIN,portaoState);
-
-  //Define o pino do sensor optico como entrada 
-  pinMode(pinosensor, INPUT);  
+  //pinMode(LED_PIN,OUTPUT);
+  //digitalWrite(LED_PIN,ledState);
+  //pinMode(PORTAO_PIN,OUTPUT);
+  //digitalWrite(PORTAO_PIN,portaoState);
+ Serial.println("aqui");
+ 
 }
 
 void loop()                     // run over and over again
 {
   
-  
-  leitura = digitalRead(pinosensor); 
- 
-  if (leitura != 1) //Verifica se o objeto foi detectado  
-  {  
-    digitalWrite(LED_PIN,HIGH);
-    int idUser = getFingerprintIDez();
-    verificaUsuario(idUser); 
-  }else{
-     digitalWrite(LED_PIN,LOW);
-  }
+ //Serial.println(digitalRead(BUTTON_PORTAO_PIN));
 
 
   // Update the Bounce instance :
   debouncer.update();
-
   // Get the updated value :
   int value = debouncer.read();
-
   // Turn on or off the LED as determined by the state :
   if ( value == LOW ) {
     digitalWrite(PORTAO_PIN, LOW );
@@ -105,7 +97,33 @@ void loop()                     // run over and over again
   }
 
 
+  
+  
 
+  
+
+  // Update the Bounce instance :
+  debouncer2.update();
+  // Get the updated value :
+  int value2 = debouncer2.read();
+  // Turn on or off the LED as determined by the state :
+  if ( value2 == LOW ) {
+    digitalWrite(LED_PIN, LOW );
+    leitura = 1;
+    Serial.println("oiii");
+  } 
+  
+  if(leitura  == 1){
+    timerFingerprint = timerFingerprint +1;
+    if(timerFingerprint > 25){
+      leitura = 0;
+      timerFingerprint = 0;
+    }
+    digitalWrite(LED_PIN,HIGH);
+    //Serial.println(timerFingerprint);
+    int idUser = getFingerprintIDez();
+    verificaUsuario(idUser);
+  }
 
   if(portaoState  == LOW){
    
@@ -117,10 +135,13 @@ void loop()                     // run over and over again
     digitalWrite(PORTAO_PIN,portaoState);
     Serial.println(timerPortao);
   }
+//Serial.println(ledState);
+
+
 
   
-      
-}
+   
+} //fim do loop
 
 
 void verificaUsuario(int id){
@@ -144,6 +165,23 @@ void verificaUsuario(int id){
     liberado = 1;
   }
 
+  if(id >= 9 && id <= 10){
+    Serial.print("Bem vinda Raquel - ");
+    Serial.println(porcentagemId);
+    liberado = 1;
+  }
+
+  if(id >= 11 && id <= 12){
+    Serial.print("Bem vinda Renata - ");
+    Serial.println(porcentagemId);
+    liberado = 1;
+  }
+
+  if(id >= 13 && id <= 14){
+    Serial.print("Bem vinda Mercia - ");
+    Serial.println(porcentagemId);
+    liberado = 1;
+  }
 
   if(liberado == 1){
     portaoState = LOW;
